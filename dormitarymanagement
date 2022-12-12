@@ -1,65 +1,44 @@
 #include "COVID19_Management.h"
 
-date today, NO = {0, 0, 0};
+date Today;
 
-date trans1(string d) //日期转化为数字函数
+string shift(date t) //数字转为日期字符串函数
 {
-    date time_1;
-    stringstream ss(d);
-    string temp;
-    vector<string> temparr;
-    while (getline(ss, temp, '.'))
-        temparr.push_back(temp);
-
-    time_1.year = stoi(temparr[0]);
-    time_1.month = stoi(temparr[1]);
-    time_1.day = stoi(temparr[2]);
-    return time_1;
-}
-
-string trans2(date a) //数字转为日期字符串函数
-{
-    string str1, str2, str3;
-    str1 = a.year;
-    str2 = a.month;
-    str3 = a.day;
+    string str1;
+    str1 = t.year;
     str1 += ".";
-    str1 += str2;
+    str1 += t.month;
     str1 += ".";
-    str1 += str3;
+    str1 += t.day;
     return str1;
 }
 
-void revise(Dorm *head) //修改楼栋信息
+void revise(Dormitary *a) //修改楼栋信息
 {
-    string m, n;
-    int j;
-    cout << "请输入要更改的楼名:（例如：27）" << endl;
-    cin >> m;
-    cout << "请输入要更改的区名:（例如：东区）" << endl;
-    cin >> n;
-    Dorm *p;
-    p = head;
-    while (p->information.name != m || p->information.district != n)
-    {
-        p = p->next;
-    }
-
-    cout << "请选择:" << endl
-         << "按下1: 开始封控" << endl
-         << "按下2：结束封控" << endl;
+    int i,k,d;
+    string j;
+    Dormitary *b;
+    b = a;
+    cout << "请输入要修改的楼栋的区:（东/西）" << endl;
     cin >> j;
-    switch (j)
+    cout << "请输入要修改的楼栋号:" << endl;
+    cin >> i;
+    cout << "press 0: 开始/继续封控" << endl
+         << "press 1：停止封控" << endl;
+    cin >> k;
+    switch (k)
     {
-    case 1:
-        p->information.startdate = trans2(today);
-        p->information.enddate = datechange(p->information.startdate);
-        p->information.flag = true;
+    case 0:
+        cout<<"请输入要封控的天数(1-7)"<<endl;
+        cin>>d;
+        b->time.startdate = shift(Today);
+        b->time.enddate = datechange(b->time.startdate,d);
+        b->fengkong= true;
         break;
     case 2:
-        p->information.startdate = trans2(NO);
-        p->information.enddate = trans2(NO);
-        p->information.flag = false;
+        p->startdate = trans2(NO);
+        p->enddate = trans2(NO);
+        b->fengkong= false;
         break;
     }
 }
@@ -118,13 +97,13 @@ void range(Dorm *head) //排序
     }
 }
 
-string datechange(string a) //封控增加5天函数
+string datechange(string a,int b) //封控增加天数
 {
     date x = trans1(a);
     int m[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     if (x.year % 4 == 0 && x.year % 100 != 0 || x.year % 400 == 0)
-        m[2] = 29;
-    x.day += 5;
+    m[13] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    x.day += b;
     if (x.day > m[x.month])
     {
         x.day -= m[x.month];
@@ -135,7 +114,7 @@ string datechange(string a) //封控增加5天函数
             x.year++;
         }
     }
-    a = trans2(x);
+    a = shift(x);
     return a;
 }
 
@@ -184,14 +163,19 @@ bool comparedate(string a, string b) //日期比较函数
     }
 }
 
-void display(Dorm a) //楼栋信息输出
+void check1(Dormitary a) //查询楼栋内人数、每日未做核酸人数以及基本信息
 {
-    cout << a.information.name << " " << a.information.district << " " << a.information.capacity << " " << a.information.chief << " " << a.information.startdate << " " << a.information.enddate;
-    if (a.information.flag)
-        cout << " "
-             << "Locked";
+    cout << a.DormitarySection << a.DormitaryNumber << "人数为" << a.StudentQuantity << "楼长为" << a.information.chief ;
+
+}
+void check2(Dormitary a) // 查询楼栋封控状态、起始时间、结束时间
+{
+    cout << a.DormitarySection << a.DormitaryNumber << "人数为" << a.StudentQuantity << "楼长为" << a.information.chief ;
+    if (a.fengkong)
+        cout << a.DormitarySection << a.DormitaryNumber <<"封控起始时间为"<<endl
+        <<a.starttime<<"结束时间为"<<a.endtime;
     else
-        cout << " "
-             << "Unlock";
+        cout << a.DormitarySection << a.DormitaryNumber << "未被封控";
+    
     cout << endl;
 }

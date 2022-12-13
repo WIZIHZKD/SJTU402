@@ -1,17 +1,6 @@
 #include "COVID19_Management.h"
 
-date Today;
-
-string shift(date t) //数字转为日期字符串函数
-{
-    string str1;
-    str1 = t.year;
-    str1 += ".";
-    str1 += t.month;
-    str1 += ".";
-    str1 += t.day;
-    return str1;
-}
+time Today,org={0,0,0};
 
 void revise(Dormitary *a) //修改楼栋信息
 {
@@ -19,6 +8,8 @@ void revise(Dormitary *a) //修改楼栋信息
     string j;
     Dormitary *b;
     b = a;
+    cout<<"请输入今日日期：（2020 2 22）"<<endl;
+    cin>>Today.year>>Today.month>>Today.day;
     cout << "请输入要修改的楼栋的区:（东/西）" << endl;
     cin >> j;
     cout << "请输入要修改的楼栋号:" << endl;
@@ -31,151 +22,105 @@ void revise(Dormitary *a) //修改楼栋信息
     case 0:
         cout<<"请输入要封控的天数(1-7)"<<endl;
         cin>>d;
-        b->time.startdate = shift(Today);
-        b->time.enddate = datechange(b->time.startdate,d);
+        b->time.endtime = datechange(b->time.starttime,d);
         b->fengkong= true;
         break;
-    case 2:
-        p->startdate = trans2(NO);
-        p->enddate = trans2(NO);
+    case 1:
+        b->starttime = org;
+        b->endtime = org;
         b->fengkong= false;
         break;
     }
 }
 
-void output(Dorm *head) //输出楼栋状态
+bool range1(time a, time b) //日期比较函数
 {
-    string m, n;
-    cout << "请输入要更改的楼名:（例如：27）" << endl;
-    cin >> m;
-    cout << "请输入要更改的区名:（例如：东区）" << endl;
-    cin >> n;
-    Dorm *p;
-    p = head;
-    while (p->information.name != m || p->information.district != n)
-    {
-        p = p->next;
-    }
-    if (p->information.startdate == trans2(NO))
-    {
-        cout << m << "未封控;  查询时间:" << trans2(today) << endl;
-    }
-    else
-    {
-        cout << m << "封控中;  开始时间:" << p->information.startdate << " 解封时间:" << p->information.enddate << "  查询时间:" << trans2(today) << endl;
-    }
-}
-
-void range(Dorm *head) //排序
-{
-    string min, max;
-    Dorm *p;
-    p = head;
-    min = p->information.enddate;
-    max = p->information.enddate;
-    while (p != NULL)
-    {
-        if (!comparedate(p->information.enddate, min))
-            min = p->information.enddate;
-        if (comparedate(p->information.enddate, max))
-            max = p->information.enddate;
-    }
-
-    string temp = min;
-    while (!comparedate(temp, max))
-    {
-        p = head;
-        while (p != NULL)
-        {
-            if (p->information.enddate == temp)
-            {
-                display(*p);
-            }
-            p = p->next;
-        }
-        datechange1(temp);
-    }
-}
-
-string datechange(string a,int b) //封控增加天数
-{
-    date x = trans1(a);
-    int m[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    if (x.year % 4 == 0 && x.year % 100 != 0 || x.year % 400 == 0)
-    m[13] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    x.day += b;
-    if (x.day > m[x.month])
-    {
-        x.day -= m[x.month];
-        x.month++;
-        if (x.month > 12)
-        {
-            x.month = 1;
-            x.year++;
-        }
-    }
-    a = shift(x);
-    return a;
-}
-
-string datechange1(string a) //日期增加1天函数
-{
-    date x = trans1(a);
-    int m[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    if (x.year % 4 == 0 && x.year % 100 != 0 || x.year % 400 == 0)
-        m[2] = 29;
-    x.day += 1;
-    if (x.day > m[x.month])
-    {
-        x.day -= m[x.month];
-        x.month++;
-        if (x.month > 12)
-        {
-            x.month = 1;
-            x.year++;
-        }
-    }
-    a = trans2(x);
-    return a;
-}
-
-bool comparedate(string a, string b) //日期比较函数
-{
-    date day1 = trans1(a);
-    date day2 = trans1(b);
+    time day1 = a;
+    time day2 = b;
     if (day1.year < day2.year)
-        return false;
-    else if (day1.year > day2.year)
         return true;
-    else
+    else if (day1.year==day2.year)
     {
         if (day1.month < day2.month)
-            return false;
-        if (day1.month > day2.month)
             return true;
-        else
+        if (day1.month == day2.month)
         {
             if (day1.day > day2.day)
-                return true;
-            else
                 return false;
+            else
+                return true;
         }
+        else return false;
+    }
+    else return false;
+}
+
+void range2(Dormitary *a) //排序
+{
+    string early, late, temp;
+    Dormitary *b;
+    b=a;
+    early = b->time.endtime;
+    late = b->time.endtime;
+    while (b != NULL)
+    {
+        if (range1(b->time.endtime, early))
+            early = b->time.endtime;
+        if (!range1(b->time.endtime, late))
+            late = b->time.endtime;
+    }
+
+    temp = early;
+    while (range1(temp, late))
+    {
+        b = a;
+        while (b != NULL)
+        {
+            if (b->time.endtime == temp)
+            {
+                check2(*b);
+            }
+        }
+        datechange(Today,-1);
     }
 }
+
+string datechange(time a,int b) //封控增加天数
+{
+    Dormitary *c
+    c->time.starttime;
+    int m[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if (c.year % 4 == 0 && c.year % 100 != 0 || c.year % 400 == 0)
+    m[13] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    c.day += b;
+    if (c.day > m[c.month])
+    {
+        c.day -= c[x.month];
+        c.month++;
+        if (c.month > 12)
+        {
+            c.month = 1;
+            c.year++;
+        }
+    }
+    a = c;
+    return a;
+}
+
 
 void check1(Dormitary a) //查询楼栋内人数、每日未做核酸人数以及基本信息
 {
-    cout << a.DormitarySection << a.DormitaryNumber << "人数为" << a.StudentQuantity << "楼长为" << a.information.chief ;
+    cout << a.DormitarySection << a.DormitaryNumber << "人数为" << a.StudentQuantity << "楼长为" << a.managername ;
 
 }
 void check2(Dormitary a) // 查询楼栋封控状态、起始时间、结束时间
 {
-    cout << a.DormitarySection << a.DormitaryNumber << "人数为" << a.StudentQuantity << "楼长为" << a.information.chief ;
+    cout << a.DormitarySection << a.DormitaryNumber << "人数为" << a.StudentQuantity << "楼长为" << a.managername ;
     if (a.fengkong)
         cout << a.DormitarySection << a.DormitaryNumber <<"封控起始时间为"<<endl
         <<a.starttime<<"结束时间为"<<a.endtime;
     else
         cout << a.DormitarySection << a.DormitaryNumber << "未被封控";
-    
+
     cout << endl;
 }

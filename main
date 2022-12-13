@@ -87,8 +87,8 @@ time endtime;
 };
 struct STUDENT{
 string Name="未知";//字符串
-long StudentNumber=0;//12位数
-long Telephone=0;//11位数
+long long int StudentNumber=0;//12位数
+long long int Telephone=0;//11位数
 string Academy="未知";//字符串
 string Class="未知";//字符串
 int dormitarynumber=0;
@@ -125,11 +125,11 @@ for (int j = 0; j < splitComma.size(); ++j)//最后用冒号分割
             }
             else if (splitColon[0] == "学号")
             {
-                student[studentcounter].StudentNumber = atol(splitColon[1].c_str());
+                student[studentcounter].StudentNumber = atoll(splitColon[1].c_str());
             }
             else if (splitColon[0] == "电话")
             {
-                student[studentcounter].Telephone = atol(splitColon[1].c_str());
+                student[studentcounter].Telephone = atoll(splitColon[1].c_str());
             }
             else if (splitColon[0] == "学院")
             {
@@ -162,7 +162,7 @@ void Input_Hesuaninformation(STUDENT*student){
 //cin.get();
 int m;//用来确定学生的位置
 string hesuanwhole;
-long tempstudentnumber;
+long long int tempstudentnumber;
 getline(cin,hesuanwhole);
 cout<<hesuanwhole<<endl;
 vector<string> splitSemicolon = Util::split(hesuanwhole, "；");
@@ -173,7 +173,7 @@ for (int i = 0; i < splitSemicolon.size(); ++i){
             vector<string>splitColon = Util::split(splitComma[j], ":");
             if (splitColon[0] == "学号")//先单独将学号取出
             {
-                    tempstudentnumber=atol(splitColon[1].c_str());
+                    tempstudentnumber=atoll(splitColon[1].c_str());
                     break;
             }
         }
@@ -214,7 +214,7 @@ for (int i = 0; i < splitSemicolon.size(); ++i){
     cout<<"其中"<<tempstudentnumber<<"学号不存在，请先录入学生基本信息"<<endl;
     }
 }
-cout<<student[1].Hesuan[student[1].hesuancishu-1].hesuan<<endl;
+cout<<student[1].StudentNumber<<endl;
 cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
 }
 

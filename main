@@ -110,7 +110,7 @@ extern int studentcounter=0;//学生总数
 
 void Input_studentinformation(STUDENT*student,Dormitary*dormitary){//录入学生基本信息
 cout<<"请输入学生基本信息（提示：请由中文分号分割不同学生，英文冒号表明相应的信息,中文逗号分割信息，否则可能会出错）\n例如：姓名:xxx，学号:xxx，电话:xxx，学院:xxx，班级:xxx，宿舍楼栋:xxx；"<<endl;
-cin.get();//吃掉回车符
+cin.get();
 string studentwhole;
 getline(cin,studentwhole);
 vector<string> splitSemicolon = Util::split(studentwhole, "；");//先按分号进行分割
@@ -150,7 +150,6 @@ for (int j = 0; j < splitComma.size(); ++j)//最后用冒号分割
         }
         studentcounter++;
     }
-    cout<<student[1].Academy;
     cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
 }
 
@@ -159,59 +158,61 @@ for (int j = 0; j < splitComma.size(); ++j)//最后用冒号分割
 
 
 void Input_Hesuaninformation(STUDENT*student){
- cout<<"请输入学生核酸信息（提示：请由中文分号分割不同学生，英文冒号表明相应的信息,中文逗号分割信息，否则可能会出错）\n例如：学号:xxx，核酸结果:x性，年:xxxx，月:xx，日:xx，时:xxx；"<<endl;
-cin.get();
+   cout<<"请输入学生核酸信息（提示：请由中文分号分割不同学生，英文冒号表明相应的信息,中文逗号分割信息，否则可能会出错）\n例如：学号:xxx，核酸结果:x性，年:xxxx，月:xx，日:xx，时:xxx；"<<endl;
+//cin.get();
 int m;//用来确定学生的位置
 string hesuanwhole;
 long tempstudentnumber;
 getline(cin,hesuanwhole);
+cout<<hesuanwhole<<endl;
 vector<string> splitSemicolon = Util::split(hesuanwhole, "；");
 for (int i = 0; i < splitSemicolon.size(); ++i){
-vector<string> splitComma = Util::split(splitSemicolon[i], "，");
-for (int j = 0; j < splitComma.size(); ++j)
+  vector<string> splitComma = Util::split(splitSemicolon[i], "，");
+   for (int j = 0; j < splitComma.size(); ++j)
         {
-            vector<string> splitColon = Util::split(splitComma[j], ":");
+            vector<string>splitColon = Util::split(splitComma[j], ":");
             if (splitColon[0] == "学号")//先单独将学号取出
             {
                     tempstudentnumber=atol(splitColon[1].c_str());
+                    break;
             }
-
-}
-bool flag=false;//检测学号是否存在
-for(m=0;m<studentcounter;m++)
-{
+        }
+    bool flag=false;//检测学号是否存在
+    for(m=0;m<studentcounter;m++)
+     {
     if(student[m].StudentNumber==tempstudentnumber)
-        flag=true;
-}
-if(flag){
-for(int j = 0; j < splitComma.size(); ++j){
+        {flag=true;break;}
+     }
+    if(flag){
+    for(int j = 0; j < splitComma.size(); ++j){
     vector<string> splitColon = Util::split(splitComma[j], ":");
     if (splitColon[0] == "核酸结果")//先单独将学号取出
             {
                     student[m].Hesuan[student[m].hesuancishu].hesuan=splitColon[1];
             }
-    if (splitColon[0] == "年")
-    {
+    else if (splitColon[0] == "年")
+          {
         student[m].Hesuan[student[m].hesuancishu].hesuantime.year=atoi(splitColon[1].c_str());
-    }
-    if (splitColon[0] == "月")
-    {
+          }
+    else if (splitColon[0] == "月")
+          {
         student[m].Hesuan[student[m].hesuancishu].hesuantime.month=atoi(splitColon[1].c_str());
-    }
-    if (splitColon[0] == "日")
-    {
+          }
+    else if (splitColon[0] == "日")
+          {
         student[m].Hesuan[student[m].hesuancishu].hesuantime.day=atoi(splitColon[1].c_str());
-    }
-    if (splitColon[0] == "时")
-    {
+          }
+    else if (splitColon[0] == "时")
+          {
         student[m].Hesuan[student[m].hesuancishu].hesuantime.hour=atoi(splitColon[1].c_str());
-    }
+          }
 
+      }
+     student[m].hesuancishu++;
 }
-student[m].hesuancishu++;}
-else{
-    cout<<tempstudentnumber<<"学号不存在，请先录入学生基本信息";
-}
+    else{
+    cout<<"其中"<<tempstudentnumber<<"学号不存在，请先录入学生基本信息"<<endl;
+    }
 }
 cout<<student[1].Hesuan[student[1].hesuancishu-1].hesuan<<endl;
 cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
@@ -257,7 +258,7 @@ while(cin>>n){
     case 1:
         Input_studentinformation(student,dormitary);break;//导入姓名、学号、电话、学院、班级、宿舍楼栋。
     case 2:
-        Input_Hesuaninformation(student);break;//导入核酸信息
+        cin.get();Input_Hesuaninformation(student);break;//导入核酸信息
     case 3:
         Input_dormitaryinformation(dormitary);break;//宿舍信息只导入相应的宿舍分区和负责人，宿舍人数由学生基本信息时的宿舍信息计算
     case 4:

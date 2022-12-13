@@ -66,25 +66,35 @@ private:
     }
 
 };
+
 struct time{//存放时间
 int hour=0;
 int day=0;
 int month=0;
 int year=0;
 };
+
+
+
 struct Hesuan{//存储核酸结果和日期
 string hesuan="无";
 time hesuantime;
 };
+
+
+
 struct Dormitary{
 int DormitaryNumber=0;
 int StudentQuantity=0;
 string ManagerName="未知";
-string DormitarySection="未知";
+string DormitarySection="(未知)区";
 bool fengkong=false;
 time starttime;
 time endtime;
 };
+
+
+
 struct STUDENT{
 string Name="未知";//字符串
 long long int StudentNumber=0;//12位数
@@ -95,19 +105,243 @@ int dormitarynumber=0;
 Hesuan Hesuan[10];//可存放10次核酸情况。
 int hesuancishu=0;
 };
+
+struct Date{
+int day=0;
+int month=0;
+int year=0;
+};
+
+struct StudentT{//学生申请结构体
+long StudentNumber=0;
+string Name="空";
+string Area="未知校区";
+string Reason="未知原因";
+string Academy="未知学院";
+Date Enter;
+Date Out;
+int Condition=0;
+};
+
+
+
+
 void Input_dormitaryinformation(Dormitary*dormitary);//输入宿舍信息
 void Input_Hesuaninformation(STUDENT*student);//输入核酸信息
 void Input_studentinformation(STUDENT*student);//输入学生信息
 int StudentInput(STUDENT*student);//综合输入
+
+
+
 void StudentInformation(STUDENT*student);
 void CommuteManagement(STUDENT*student);
-void DormitaryManagement(STUDENT*student);
+
+
+
+//宿舍管理函数声明
+void DormitaryManagement(STUDENT*student,Dormitary*dormitary);//总体
+void revise(Dormitary *a,time Today);
+bool range1(time a, time b);//比较时间
+time datechange(time a,int b);//增加时间
+void help1();//一部分共通提示的输出
+void help2();//一部分共通提示的输出
+void help3();//一部分共通提示的输出
+void fresh();
+void check2(Dormitary *b);
+void check1(Dormitary*dormitary,STUDENT*Student);
+
+
 extern int studentcounter=0;//学生总数
+const time org={0,0,0,0};//时间初始化
+const char* code1="SJTU";//系统进入密码
+const char* code2="woshilaoshi";//老师进入密码
 
 
 
+//宿舍管理模块在前
+//刷新时间并同时更新封控情况
+void fresh(time Today,Dormitary*dormitary){
+    cout<<"请输入今日日期：（格式：年 月 日）\n例如：2020 2 22"<<endl;
+    cin>>Today.year>>Today.month>>Today.day;
+    for(int i=1;i<=100;i++)
+{
+    dormitary[i].starttime=Today;
+    if(range1(dormitary[i].endtime,Today))
+       {
+           dormitary[i].endtime=org;
+       }
+}
+}
+
+void revise(Dormitary *a) //修改楼栋信息
+{
+    int i,k,d;
+    cout << "请输入要修改的楼栋号:" << endl;
+    cin >> i;
+    cout << "press 0: 开始/继续封控" << endl
+         << "press 1：停止封控" << endl;
+    cin >> k;
+    switch (k)
+    {
+    case 0:
+        cout<<"请输入要封控的天数(1-7)"<<endl;
+        cin>>d;
+        a[i].endtime = datechange(a[i].starttime,d);
+        a[i].fengkong= true;
+        break;
+    case 1:
+        a[i].endtime = org;
+        a[i].fengkong = false;
+        break;
+    }
+}
+
+bool range1(time a, time b) //日期比较函数
+{
+    time day1 = a;
+    time day2 = b;
+    if (day1.year < day2.year)
+        return true;
+    else if (day1.year==day2.year)
+    {
+        if (day1.month < day2.month)
+            return true;
+        if (day1.month == day2.month)
+        {
+            if (day1.day > day2.day)
+                return false;
+            else
+                return true;
+        }
+        else return false;
+    }
+    else return false;
+}
+
+void range2(Dormitary *a) //排序
+{
+    Dormitary b[101];
+    Dormitary temp;
+    for(int i=1;i<=100;i++)
+        b[i]=a[i];//将宿舍信息先进行拷贝
+    for(int i=1;i<100;++i)//冒泡排序
+    {
+        for(int j=1;j<=100-i;++j){
+            if(!range1(b[j].endtime,b[j+1].endtime))
+            {
+                temp = b[j];
+                b[j]=b[j+1];
+                b[j+1]=temp;
+            }
+        }
+    }
+    cout<<"解封先后按楼栋顺序排列为（先解封在前）"<<endl;
+    for(int i=1;i<=100;i++)
+        cout<<b[i].DormitaryNumber<<" ";
+    cout<<endl;
+}
+
+time datechange(time c,int b) //封控增加天数
+{
+    int m[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if (c.year % 4 == 0 && c.year % 100 != 0 || c.year % 400 == 0)
+    m[2]++;
+    c.day += b;
+    if (c.day > m[c.month])
+    {
+        c.day -= m[c.month];
+        c.month++;
+        if (c.month > 12)
+        {
+            c.month = 1;
+            c.year++;
+        }
+    }
+    return c;
+}
 
 
+void check2(Dormitary *b) // 查询楼栋封控状态、起始时间、结束时间
+{
+    Dormitary a;
+    int i;
+    cout<<"请输入要查询的楼栋号码(1-100)"<<endl;
+    cin>>i;
+    if(i>100||i<1)
+        cout<<"输入错误！返回上一级"<<endl;
+    else{
+            a=b[i];
+            if (a.fengkong){
+                cout << a.DormitarySection <<"的"<<a.DormitaryNumber <<"号楼栋封控起始时间为"<<a.starttime.year<<"年"<<a.starttime.month<<"月"<<a.starttime.day<<"日"<<endl;
+                cout<<"结束时间为"<<a.endtime.year<<"年"<<a.endtime.month<<"月"<<a.endtime.day<<"日"<<endl;
+            }
+            else
+                cout << a.DormitarySection <<"的"<< a.DormitaryNumber << "号楼栋未被封控"<<endl;
+    }
+
+}
+
+
+void check1(Dormitary*dormitary,STUDENT*Student) //查询楼栋内人数、每日未做核酸人数以及基本信息
+{
+    time t;
+    int n,k;
+    cout<<"请输入要查询的日期"<<endl;
+    cin>>t.year>>t.month>>t.day;
+    cout<<"请输入要查询的楼栋编码"<<endl;
+    cin>>n;
+    k=0;
+    for (int i=0;i<studentcounter;i++){
+            if (Student[i].dormitarynumber==n){
+                for(int j=0;j<Student[i].hesuancishu;j++){
+                    if(Student[i].Hesuan[j].hesuantime.day==t.day&&Student[i].Hesuan[j].hesuantime.month==t.month&&Student[i].Hesuan[j].hesuantime.year==t.year)
+                        k++;
+                }
+                }
+            }
+    k=dormitary[n].StudentQuantity-k;
+    cout << t.year<<"年"<<t.month<<"月"<<t.day<<"日"<<dormitary[n].DormitarySection <<"的"<<dormitary[n].DormitaryNumber << "号楼栋人数为" << dormitary[n].StudentQuantity << "人，楼长为" << dormitary[n].ManagerName<<"，今日未做核酸人数为"<<k<<endl;
+    }
+
+
+//提示的输出
+void help1(){
+cout<<"请继续输入相应数字执行相应功能:\n1:修改楼栋封控状态和解封时间\n2:查询楼栋封控状态，起始时间，结束时间\n3:查询楼栋内人数，每日未做核酸人数\n4:显示楼栋解封顺序\n5:退出"<<endl;
+}
+
+
+//提示的输出
+void help2(){
+cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
+}
+
+//提示的输出
+void help3(){
+cout<<"回到主界面！\n请输入相应数字来执行相应功能：\n1:信息导入\n2:学生信息上报管理\n3:学生进出校管理\n4:学校宿舍楼管理\n5:退出"<<endl;
+}
+
+
+void DormitaryManagement(STUDENT*student,Dormitary *dormitary){
+    time present;
+    fresh(present,dormitary);
+cout<<"请输入相应数字执行相应功能:\n1:修改楼栋封控状态和解封时间\n2:查询楼栋封控状态，起始时间，结束时间\n3:查询楼栋内人数，每日未做核酸人数\n4:显示楼栋解封顺序\n5:退出"<<endl;
+int num;
+while(cin>>num){
+        switch(num)
+    {
+       case 1: revise(dormitary);help1();break;
+       case 2: check2(dormitary);help1();break;
+       case 3: check1(dormitary,student);help1();break;
+       case 4: range2(dormitary);help1();break;
+       case 5: help3();break;
+       default: cout<<"输入错误！请输入1到5中的正整数执行相应功能！"<<endl;
+    }
+}
+}
+
+
+
+//输入信息模块
 void Input_studentinformation(STUDENT*student,Dormitary*dormitary){//录入学生基本信息
 cout<<"请输入学生基本信息（提示：请由中文分号分割不同学生，英文冒号表明相应的信息,中文逗号分割信息，否则可能会出错）\n例如：姓名:xxx，学号:xxx，电话:xxx，学院:xxx，班级:xxx，宿舍楼栋:xxx；"<<endl;
 cin.get();
@@ -150,7 +384,8 @@ for (int j = 0; j < splitComma.size(); ++j)//最后用冒号分割
         }
         studentcounter++;
     }
-    cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
+    cout<<dormitary[29].StudentQuantity<<endl;
+    help2();
 }
 
 
@@ -158,7 +393,7 @@ for (int j = 0; j < splitComma.size(); ++j)//最后用冒号分割
 
 
 void Input_Hesuaninformation(STUDENT*student){
-   cout<<"请输入学生核酸信息（提示：请由中文分号分割不同学生，英文冒号表明相应的信息,中文逗号分割信息，否则可能会出错）\n例如：学号:xxx，核酸结果:x性，年:xxxx，月:xx，日:xx，时:xxx；"<<endl;
+   cout<<"请按日期输入学生核酸信息（提示：请由中文分号分割不同学生，英文冒号表明相应的信息,中文逗号分割信息，否则可能会出错）\n例如：学号:xxx，核酸结果:x性，年:xxxx，月:xx，日:xx，时:xxx；"<<endl;
 //cin.get();
 int m;//用来确定学生的位置
 string hesuanwhole;
@@ -214,8 +449,7 @@ for (int i = 0; i < splitSemicolon.size(); ++i){
     cout<<"其中"<<tempstudentnumber<<"学号不存在，请先录入学生基本信息"<<endl;
     }
 }
-cout<<student[1].StudentNumber<<endl;
-cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
+     help2();
 }
 
 
@@ -243,7 +477,7 @@ void Input_dormitaryinformation(Dormitary*dormitary){
     else
         break;
     }
-    cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
+    help2();
 }
 
 
@@ -262,7 +496,7 @@ while(cin>>n){
     case 3:
         Input_dormitaryinformation(dormitary);break;//宿舍信息只导入相应的宿舍分区和负责人，宿舍人数由学生基本信息时的宿舍信息计算
     case 4:
-        cout<<"回到主界面！\n请输入相应数字来执行相应功能：\n1:信息导入\n2:学生信息上报管理\n3:学生进出校管理\n4:学校宿舍楼管理\n5:退出"<<endl;
+        help3();
         return 0;
     default:cout<<"输入错误！请输入1到4中的正整数执行相应功能！"<<endl;
     }
@@ -273,21 +507,36 @@ while(cin>>n){
 
 
 
-void StudentInformation(STUDENT*student){}
-void CommuteManagement(STUDENT*student){}
-void DormitaryManagement(STUDENT*student){}
+void StudentInformation(STUDENT*student){
+}
+
+
+
+
+
+
+void CommuteManagement(StudentT*stu){
+
+}
+
+
+
+
+
+
 int main()
 {
     STUDENT student[1000];
     Dormitary dormitary[101];
+    StudentT stu[1000];
     for(int i=1;i<=100;i++)
     {
         dormitary[i].DormitaryNumber=i;
     }//先对宿舍初始化
-    char *code="SJTU",input[10];//使用前就要先输入密码
+    char input[10];//使用前就要先输入密码
     cout << "请输入密码：" ;
     cin.getline(input,10);
-    while(strcmp(input,code)!=0){
+    while(strcmp(input,code1)!=0){
         cout<<"密码错误，请输入正确的密码：";
          cin.getline(input,20);
     }
@@ -298,8 +547,8 @@ int main()
     {
        case 1: StudentInput(student,dormitary);break;//信息导入
        case 2: StudentInformation(student);break;//学生信息上报管理
-       case 3: CommuteManagement(student);break;//学生进出校管理
-       case 4: DormitaryManagement(student);break;//学生宿舍管理
+       case 3: CommuteManagement(stu);break;//学生进出校管理
+       case 4: DormitaryManagement(student,dormitary);break;//学生宿舍管理
        case 5: cout<<"BYE"<<endl;return 0;
        default: cout<<"输入错误！请输入1到5中的正整数执行相应功能！"<<endl;
     }

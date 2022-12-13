@@ -1,0 +1,307 @@
+#include <iostream>
+#include <cstring>
+#include <vector>
+#include <string>
+#include <sstream>
+using namespace std;
+class Util {
+    // 所需头文件  <sstream>  <vector>  <string>
+public:
+    // 函数以单个char字符作为分隔符对string字符串进行分割， 并将分割结果存入vector中，最终返回vector<string>
+    static std::vector<string> split(const std::string &s, char delimiter) { //  n.	定界符，分隔符;
+        std::vector<string> tokens; // 存放结果
+        std::string token; // 子串
+        std::istringstream tokenStream(s); //使用string s初始化输入流, 标准库头文件 <sstream>
+        while (std::getline(tokenStream, token,
+                            delimiter)) { //  对于输入流，遇到char的delimiter时 就停止 把结果储存在token中, (同时舍弃遇到的这个char), 定义于<string>
+            if (!token.empty()) //因为会遇到连续的delimiter的情况，这时候token就是空，这种情况不要放入tokens当中
+                tokens.push_back(token);
+        }
+        return tokens;
+    }
+
+    // 函数以string作为分隔符对string字符串进行分割， 并将分割结果存入vector中，最终返回vector<string>
+    static std::vector<string> split(const std::string &s, const std::string &delimiter) { //  n.	定界符，分隔符;
+        std::vector<string> tokens; // 存放结果
+        std::string token; // 子串
+        int i = 0, start = 0, sSize = (int) s.size(), dSize = (int) delimiter.size(); // start为字符子串的起始位置
+        while (i < sSize) {
+            if (isDelimiter2(s, i, delimiter)) {  // 此处也可以使用isDelimiter(s, i, delimiter)  如果遇到了分隔符
+                token = s.substr(start, i - start); // 分割字符串
+                if (!token.empty()) { // 因为会遇到连续的delimiter的情况，这时候token就是空，这种情况不要放入tokens当中
+                    tokens.push_back(token);
+                }
+                i += dSize; // 跳过分隔符的长度
+                start = i; // 更新子串的起始位置
+            } else {
+                i++;
+            }
+        }
+        token = s.substr(start, i - start); // 分割字符串
+        if (!token.empty()) { //因为会遇到连续的delimiter的情况，这时候token就是空，这种情况不要放入tokens当中
+            tokens.push_back(token);
+        }
+        return tokens;
+    }
+
+private:
+    // 函数判断字符串s从下标i开始的，长为delimiter的字符子串是否和delimiter全等
+    static bool isDelimiter(const std::string &s, int i, const std::string &delimiter) {
+        int j = 0, sSize = (int) s.size(), dSize = (int) delimiter.size();
+        while (i < sSize && j < dSize) {
+            if (s[i] != delimiter[j]) {
+                return false;
+            } else {
+                j++;
+                i++;
+            }
+        }
+        return j == dSize;
+    }
+
+    // 函数判断字符串s从下标i开始的，长为delimiter的字符子串是否和delimiter全等
+    static bool isDelimiter2(const std::string &s, int i, const std::string &delimiter) {
+
+        return s.substr(i, delimiter.size()) == delimiter;
+    }
+
+};
+struct time{//存放时间
+int hour=0;
+int day=0;
+int month=0;
+int year=0;
+};
+struct Hesuan{//存储核酸结果和日期
+string hesuan="无";
+time hesuantime;
+};
+struct Dormitary{
+int DormitaryNumber=0;
+int StudentQuantity=0;
+string ManagerName="未知";
+string DormitarySection="未知";
+bool fengkong=false;
+time starttime;
+time endtime;
+};
+struct STUDENT{
+string Name="未知";//字符串
+long StudentNumber=0;//12位数
+long Telephone=0;//11位数
+string Academy="未知";//字符串
+string Class="未知";//字符串
+int dormitarynumber=0;
+Hesuan Hesuan[10];//可存放10次核酸情况。
+int hesuancishu=0;
+};
+void Input_dormitaryinformation(Dormitary*dormitary);//输入宿舍信息
+void Input_Hesuaninformation(STUDENT*student);//输入核酸信息
+void Input_studentinformation(STUDENT*student);//输入学生信息
+int StudentInput(STUDENT*student);//综合输入
+void StudentInformation(STUDENT*student);
+void CommuteManagement(STUDENT*student);
+void DormitaryManagement(STUDENT*student);
+extern int studentcounter=0;//学生总数
+
+
+
+
+
+void Input_studentinformation(STUDENT*student,Dormitary*dormitary){//录入学生基本信息
+cout<<"请输入学生基本信息（提示：请由中文分号分割不同学生，英文冒号表明相应的信息,中文逗号分割信息，否则可能会出错）\n例如：姓名:xxx，学号:xxx，电话:xxx，学院:xxx，班级:xxx，宿舍楼栋:xxx；"<<endl;
+cin.get();//吃掉回车符
+string studentwhole;
+getline(cin,studentwhole);
+vector<string> splitSemicolon = Util::split(studentwhole, "；");//先按分号进行分割
+ for (int i = 0; i < splitSemicolon.size(); ++i){
+vector<string> splitComma = Util::split(splitSemicolon[i], "，");//再按逗号分割
+for (int j = 0; j < splitComma.size(); ++j)//最后用冒号分割
+        {
+            vector<string> splitColon = Util::split(splitComma[j], ":");
+            if (splitColon[0] == "姓名")
+            {
+                student[studentcounter].Name = splitColon[1];
+            }
+            else if (splitColon[0] == "学号")
+            {
+                student[studentcounter].StudentNumber = atol(splitColon[1].c_str());
+            }
+            else if (splitColon[0] == "电话")
+            {
+                student[studentcounter].Telephone = atol(splitColon[1].c_str());
+            }
+            else if (splitColon[0] == "学院")
+            {
+                student[studentcounter].Academy = splitColon[1];
+            }
+            else if (splitColon[0] == "班级")
+            {
+                student[studentcounter].Class = splitColon[1];
+            }
+            else if (splitColon[0] == "宿舍楼栋")
+            {
+                student[studentcounter].dormitarynumber = atoi(splitColon[1].c_str());
+                if(student[studentcounter].dormitarynumber>100){
+                    cout<<"请输入"<< student[studentcounter].Name<<"的正确的宿舍楼栋"<<endl;
+                    cin>>student[studentcounter].dormitarynumber;}
+                dormitary[student[studentcounter].dormitarynumber].StudentQuantity++;
+            }
+        }
+        studentcounter++;
+    }
+    cout<<student[1].Academy;
+    cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
+}
+
+
+
+
+
+void Input_Hesuaninformation(STUDENT*student){
+ cout<<"请输入学生核酸信息（提示：请由中文分号分割不同学生，英文冒号表明相应的信息,中文逗号分割信息，否则可能会出错）\n例如：学号:xxx，核酸结果:x性，年:xxxx，月:xx，日:xx，时:xxx；"<<endl;
+cin.get();
+int m;//用来确定学生的位置
+string hesuanwhole;
+long tempstudentnumber;
+getline(cin,hesuanwhole);
+vector<string> splitSemicolon = Util::split(hesuanwhole, "；");
+for (int i = 0; i < splitSemicolon.size(); ++i){
+vector<string> splitComma = Util::split(splitSemicolon[i], "，");
+for (int j = 0; j < splitComma.size(); ++j)
+        {
+            vector<string> splitColon = Util::split(splitComma[j], ":");
+            if (splitColon[0] == "学号")//先单独将学号取出
+            {
+                    tempstudentnumber=atol(splitColon[1].c_str());
+            }
+
+}
+bool flag=false;//检测学号是否存在
+for(m=0;m<studentcounter;m++)
+{
+    if(student[m].StudentNumber==tempstudentnumber)
+        flag=true;
+}
+if(flag){
+for(int j = 0; j < splitComma.size(); ++j){
+    vector<string> splitColon = Util::split(splitComma[j], ":");
+    if (splitColon[0] == "核酸结果")//先单独将学号取出
+            {
+                    student[m].Hesuan[student[m].hesuancishu].hesuan=splitColon[1];
+            }
+    if (splitColon[0] == "年")
+    {
+        student[m].Hesuan[student[m].hesuancishu].hesuantime.year=atoi(splitColon[1].c_str());
+    }
+    if (splitColon[0] == "月")
+    {
+        student[m].Hesuan[student[m].hesuancishu].hesuantime.month=atoi(splitColon[1].c_str());
+    }
+    if (splitColon[0] == "日")
+    {
+        student[m].Hesuan[student[m].hesuancishu].hesuantime.day=atoi(splitColon[1].c_str());
+    }
+    if (splitColon[0] == "时")
+    {
+        student[m].Hesuan[student[m].hesuancishu].hesuantime.hour=atoi(splitColon[1].c_str());
+    }
+
+}
+student[m].hesuancishu++;}
+else{
+    cout<<tempstudentnumber<<"学号不存在，请先录入学生基本信息";
+}
+}
+cout<<student[1].Hesuan[student[1].hesuancishu-1].hesuan<<endl;
+cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
+}
+
+
+
+
+void Input_dormitaryinformation(Dormitary*dormitary){
+    int number,i;
+    cout<<"请输入想要设置的宿舍楼栋号码(输入0至100以外的数将自动退出宿舍输入)";
+    while(cin>>i)
+    {cin.get();
+    if(i<=100&&i>=1){
+        cout<<"请输入"<<i<<"号宿舍楼的负责人姓名:"<<endl;
+        getline(cin,dormitary[i].ManagerName);
+        cout<<"请选择"<<i<<"号宿舍楼的分区\n1:东区\n2:西区"<<endl;
+        while(cin>>number){
+        cin.get();
+        if(number==1)
+            {dormitary[i].DormitarySection="东区";break;}
+        else if(number==2)
+            {dormitary[i].DormitarySection="西区";break;}
+        else
+            cout<<"请输入正确的分区"<<endl;}
+        cout<<"请继续输入想要设置的宿舍楼栋号码(输入0至100以外的数将自动退出宿舍输入)";
+    }
+    else
+        break;
+    }
+    cout<<"回到信息导入界面\n请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
+}
+
+
+
+
+int StudentInput(STUDENT*student,Dormitary*dormitary){
+int n;
+cout<<"请输入相应数字来执行相应功能：\n1:导入学生基本信息\n2:导入某一天的核酸情况\n3:导入宿舍楼信息\n4:退出信息导入"<<endl;
+while(cin>>n){
+    switch(n)
+    {
+    case 1:
+        Input_studentinformation(student,dormitary);break;//导入姓名、学号、电话、学院、班级、宿舍楼栋。
+    case 2:
+        Input_Hesuaninformation(student);break;//导入核酸信息
+    case 3:
+        Input_dormitaryinformation(dormitary);break;//宿舍信息只导入相应的宿舍分区和负责人，宿舍人数由学生基本信息时的宿舍信息计算
+    case 4:
+        cout<<"回到主界面！\n请输入相应数字来执行相应功能：\n1:信息导入\n2:学生信息上报管理\n3:学生进出校管理\n4:学校宿舍楼管理\n5:退出"<<endl;
+        return 0;
+    default:cout<<"输入错误！请输入1到4中的正整数执行相应功能！"<<endl;
+    }
+}
+}
+
+
+
+
+
+void StudentInformation(STUDENT*student){}
+void CommuteManagement(STUDENT*student){}
+void DormitaryManagement(STUDENT*student){}
+int main()
+{
+    STUDENT student[1000];
+    Dormitary dormitary[101];
+    for(int i=1;i<=100;i++)
+    {
+        dormitary[i].DormitaryNumber=i;
+    }//先对宿舍初始化
+    char *code="SJTU",input[10];//使用前就要先输入密码
+    cout << "请输入密码：" ;
+    cin.getline(input,10);
+    while(strcmp(input,code)!=0){
+        cout<<"密码错误，请输入正确的密码：";
+         cin.getline(input,20);
+    }
+    int num;
+    cout<<"请输入相应数字来执行相应功能：\n1:信息导入\n2:学生信息上报管理\n3:学生进出校管理\n4:学校宿舍楼管理\n5:退出"<<endl;
+  while(cin>>num){
+        switch(num)
+    {
+       case 1: StudentInput(student,dormitary);break;//信息导入
+       case 2: StudentInformation(student);break;//学生信息上报管理
+       case 3: CommuteManagement(student);break;//学生进出校管理
+       case 4: DormitaryManagement(student);break;//学生宿舍管理
+       case 5: cout<<"BYE"<<endl;return 0;
+       default: cout<<"输入错误！请输入1到5中的正整数执行相应功能！"<<endl;
+    }
+    }
+    return 0;
+}

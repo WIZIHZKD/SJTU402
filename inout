@@ -170,7 +170,7 @@ void check(StudentT *a) //查询申请
         cout << "审批通过";
         a->Condition=0;
         }
-    else if(a->Condition==5){}
+    else if(a->Condition==5){
         cout << "审批未通过";
         a->Condition=0;
 }

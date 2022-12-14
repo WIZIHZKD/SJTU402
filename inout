@@ -1,49 +1,39 @@
 #include "COVID19_Management.h"
-extern studentcounter;
-void app(StudentT *a);
-void del(StudentT *a);
+
+extern int studentcounter;
+extern int studentapplynum;
+
+void app(StudentT *a,long long temp,STUDENT *student,int m);
+void del(StudentT *a,long long temp);
+void applyforinandout(StudentT *a,long long temp,STUDENT *student,int m);
 void exa(StudentT *a);
-void check(StudentT *a);
-void inoutschool(StudentT *a,StudentT *student){
-    int i,j;
+void check(StudentT *a,long long temp);
+void inoutschool(StudentT *a,STUDENT *student){
+    int i;
     bool flag=true;
     while (flag){
     cout<<"老师请输入0，学生请输入1";
     cin>>i;
     switch(i){
-        case 0:for (int i=0;i<studentcounter;i++){
-            if (student[i].Condition>0&&student[i].Condition<4){
-                    exa(student);
-                    cout<<"继续审批请输入0，中止请输入1"<<endl;
-                    cin>>j;
-                    if  (j==1) {
-                        flag=false;
-                        break;
-                    }
-            if (i==studentcounter) {
-                cout<<"所有申请已被审批完毕"<<endl;
-                flag=false;
-                        break;
-            }
-
-            }
-
-        }
-
-        case 1:cout<<"请输入您的姓名，学号（张三 5220319XXXXX）"<<endl;
-                cin>>a->Name>>a->StudentNumber;
+        case 0:
+                    exa(a);
+        case 1:{
+            cout<<"请输入您的学号（5220319XXXXX）"<<endl;
+                long long int temp;
+                cin>>temp;
+                bool flag12=true;
                 for (int i=0;i<studentcounter;i++){
-                    if (student[i].StudentNumber==a->StudentNumber){
-                        app(a);
-                        flag=false;
-                    }
-                    while (flag){
-                        cout<<"该学号不存在"<<endl;
+                    if (student[i].StudentNumber==temp){
+                        applyforinandout(a,temp,student,i);
+                        flag12=false;
                         break;
+                    }
+                }
+                    if (flag12){
+                        cout<<"该学号不存在"<<endl;
                     }
                     break;
-                }
-
+        }
         default:cout<<"输入错误";
                  break;
     }
@@ -52,44 +42,51 @@ void inoutschool(StudentT *a,StudentT *student){
 }
 void exa(StudentT *a) //老师审批学生申请
 {
-    int i;
-    bool flag=true;
-        if (a->Condition > 0)
+    int i,j;
+    for (j=0;j<studentapplynum;j++){
+        if (a[j].Condition>0&&a[j].Condition<4)
         {
-            cout << a->Area << " 校区" << a->Academy << " 学院的" << a->Name
-                 << a->StudentNumber<< "因" << a->Reason ;
-            switch(a->Condition){
+            cout << a[j].Area << " 校区" << a[j].Academy << " 学院的" << a[j].Name
+                 << a[j].StudentNumber<< "因" << a[j].Reason ;
+            switch(a[j].Condition){
                 case 1:
-                cout << "申请于" << a->Enter.year<<"年"<< a->Enter.month<<"月"<<a->Enter.day <<"日入校"<< endl;
+                cout << "申请于" << a[j].Enter.year<<"年"<< a[j].Enter.month<<"月"<<a[j].Enter.day <<"日入校"<< endl;
                 break;
                 case 2:
-                cout << "申请于" << a->Out.year<<"年"<< a->Out.month<<"月"<<a->Out.day <<"日出校"<< endl;
+                cout << "申请于" << a[j].Out.year<<"年"<< a[j].Out.month<<"月"<<a[j].Out.day <<"日出校"<< endl;
                 break;
                 case 3:
-                cout << "申请于" << a->Out.year<<"年"<< a->Out.month<<"月"<<a->Out.day <<"日出校"<<
-                      "于" << a->Enter.year<<"年"<< a->Enter.month<<"月"<<a->Enter.day <<"日入校"<< endl;
+                cout << "申请于" << a[j].Out.year<<"年"<< a[j].Out.month<<"月"<<a[j].Out.day <<"日出校"<<
+                      "于" << a[j].Enter.year<<"年"<< a[j].Enter.month<<"月"<<a[j].Enter.day <<"日入校"<< endl;
                       break;
             }
-            while (flag){
-            cout << "通过请输入 0；驳回请输入 1";
+            cout << "通过请输入 0；驳回请输入 1；跳过此申请输入其它"<<endl;
             cin>>i;
             switch (i){
-            case 0:a->Condition=4;
-                    flag=false;
+            case 0:a[j].Condition=4;
                     break;
-            case 1:a->Condition=5;
-                    flag=false;
+            case 1:a[j].Condition=5;
                     break;
-            default:cout<<"无效输入。";
+            default:break;
 
             }
             }
 
+            cout<<"继续审批请输入0，中止请输入其它"<<endl;
+            int k;
+            cin>>k;
+            if  (k!=0) {
+                break;
+            }
+            if (j==studentapplynum) {
+            cout<<"所有申请已被审批完毕"<<endl;
+            }
 }
 }
 
 
-void applyforinandout(StudentT *a) //学生进出校申请
+
+void applyforinandout(StudentT *a,long long temp,STUDENT *student,int m) //学生进出校申请
 {
     int n;
     bool flag = true;
@@ -103,19 +100,19 @@ void applyforinandout(StudentT *a) //学生进出校申请
         switch (n)
         {
         case 1:
-            app(a);
+            app(a,temp,student,m);
             flag = false;
             break;
         case 2:
-            del(a);
+            del(a,temp);
             flag = false;
             break;
         case 3:
-            app(a);
+            app(a,temp,student,m);
             flag = false;
             break;
         case 4:
-            check(a);
+            check(a,temp);
             flag = false;
             break;
         default:
@@ -125,61 +122,93 @@ void applyforinandout(StudentT *a) //学生进出校申请
     }
 }
 
-void app(StudentT *a) //提交申请
+void app(StudentT *a,long long temp,STUDENT *student,int m) //提交申请
 {
     int i;
+    for(int k=0;k<studentapplynum;k++)//覆盖或修改的操作
+    {
+        if(a[k].StudentNumber==temp)
+            a[k].Condition=0;
+    }
+    a[studentapplynum].StudentNumber=temp;
+    a[studentapplynum].Name=student[m].Name;
+    a[studentapplynum].Academy=student[m].Academy;
     cout << "请输入校区：";
-    cin >>a->Area;
+    getline(cin,a[studentapplynum].Area);
     cout << "申请入校请输入 1；" << endl;
     cout << "申请出校请输入 2；" << endl;
-    cout << "申请进校请输入 3；" << endl;
+    cout << "申请进出校请输入其他；" << endl;
     cin >> i;
     switch (i)
     {
     case 1:
         cout << "请输入申请入校时间（）：";
-        cin >> a->Enter.year>> a->Enter.month>> a->Enter.day;
-        a->Condition = 1;
+        cin >> a[studentapplynum].Enter.year>> a[studentapplynum].Enter.month>> a[studentapplynum].Enter.day;
+        a[studentapplynum].Condition = 1;
         break;
     case 2:
         cout << "请输入申请出校时间（）：";
-        cin >> a->Out.year>> a->Out.month>> a->Out.day;
-        a->Condition = 2;
+        cin >> a[studentapplynum].Out.year>> a[studentapplynum].Out.month>> a[studentapplynum].Out.day;
+        a[studentapplynum].Condition = 2;
         break;
-    case 3:
+    default:
         cout << "请输入申请入校时间（）：";
-        cin >> a->Enter.year>> a->Enter.month>> a->Enter.day;
+        cin >> a[studentapplynum].Enter.year>> a[studentapplynum].Enter.month>> a[studentapplynum].Enter.day;
         cout << "请输入申请出校时间（）：";
-        cin >> a->Out.year>> a->Out.month>> a->Out.day;
-        a->Condition = 3;
+        cin >>a[studentapplynum].Out.year>> a[studentapplynum].Out.month>> a[studentapplynum].Out.day;
+        a[studentapplynum].Condition = 3;
         break;
     }
+
     cout << "请输入申请原因：";
-    cin >> a->Reason;
+    getline(cin,a[studentapplynum].Reason);
+    studentapplynum++;
 }
 
-void del(StudentT *a) //删除申请
+void del(StudentT *a,long long temp) //删除申请
 {
-    a->Condition = 0;
+    int k;
+    bool flag=false;
+    for(k=0;k<studentapplynum;k++)
+        if(a[k].StudentNumber==temp&&(a[k].Condition==1||a[k].Condition==2||a[k].Condition==3))
+    {
+        flag=true;
+        break;
+    }
+    if(flag)
+    {
+        for(int s=k;s<studentapplynum-1;s++)
+            a[s]=a[s+1];
+        studentapplynum--;
+    }
+    else
+        cout<<"无法删除，查询不到有效的申请!"<<endl;
 }
 
 
-void check(StudentT *a) //查询申请
+void check(StudentT *a,long long temp) //查询申请
 {
-    if (a->Condition==4){
-        cout << "审批通过";
-        a->Condition=0;
+    int k;
+    bool flag;
+    for(k=0;k<studentapplynum;k++)
+        if(a[k].StudentNumber==temp&&a[k].Condition!=0)
+    {
+        flag=true;
+        break;
+    }
+    if(flag)
+    {
+        switch(a[k].Condition){
+        case 5:
+            cout<<"申请未通过"<<endl;
+            break;
+        case 4:
+            cout<<"申请已通过"<<endl;
+            break;
+        default:
+            cout<<"申请尚未审核"<<endl;
         }
-    else if(a->Condition==5){
-        cout << "审批未通过";
-        a->Condition=0;
-}
-    if (a->Condition==0){
-        cout << "您尚未提交申请";
-        a->Condition=0;
-        }
-    else{
-        cout << "申请尚在审批中";
-        a->Condition=0;
-        }
+    }
+    else
+        cout<<"您尚未有有效的申请"<<endl;
 }

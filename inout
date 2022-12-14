@@ -1,29 +1,56 @@
 #include "COVID19_Management.h"
+extern studentcounter;
 void app(StudentT *a);
 void del(StudentT *a);
 void exa(StudentT *a);
-void inoutschool(){
-    int i;
-    StudentT *a;
+void check(StudentT *a);
+void inoutschool(StudentT *a,StudentT *student){
+    int i,j;
     bool flag=true;
     while (flag){
     cout<<"老师请输入0，学生请输入1";
     cin>>i;
     switch(i){
-        case 0:flag=false;
-               break;
+        case 0:for (int i=0;i<studentcounter;i++){
+            if (student[i].Condition>0&&student[i].Condition<4){
+                    exa(student);
+                    cout<<"继续审批请输入0，中止请输入1"<<endl;
+                    cin>>j;
+                    if  (j==1) {
+                        flag=false;
+                        break;
+                    }
+            if (i==studentcounter) {
+                cout<<"所有申请已被审批完毕"<<endl;
+                flag=false;
+                        break;
+            }
+
+            }
+
+        }
+
         case 1:cout<<"请输入您的姓名，学号（张三 5220319XXXXX）"<<endl;
                 cin>>a->Name>>a->StudentNumber;
-                app(a);
-                flag=false;
-                break;
+                for (int i=0;i<studentcounter;i++){
+                    if (student[i].StudentNumber==a->StudentNumber){
+                        app(a);
+                        flag=false;
+                    }
+                    while (flag){
+                        cout<<"该学号不存在"<<endl;
+                        break;
+                    }
+                    break;
+                }
+
         default:cout<<"输入错误";
                  break;
     }
     }
 
 }
-void exa(StudentT *a) //学生进出小审批子模块
+void exa(StudentT *a) //老师审批学生申请
 {
     int i;
     bool flag=true;
@@ -88,7 +115,7 @@ void applyforinandout(StudentT *a) //学生进出校申请
             flag = false;
             break;
         case 4:
-            exa(a);
+            check(a);
             flag = false;
             break;
         default:
@@ -101,28 +128,28 @@ void applyforinandout(StudentT *a) //学生进出校申请
 void app(StudentT *a) //提交申请
 {
     int i;
-    cout << "请输入申请校区：";
+    cout << "请输入校区：";
     cin >>a->Area;
-    cout << "申请入校请按 1；" << endl;
-    cout << "申请出校请按 2；" << endl;
-    cout << "申请进校请按 3；" << endl;
+    cout << "申请入校请输入 1；" << endl;
+    cout << "申请出校请输入 2；" << endl;
+    cout << "申请进校请输入 3；" << endl;
     cin >> i;
     switch (i)
     {
     case 1:
-        cout << "请输入申请入校时间（xxxx.xx.xx）：";
+        cout << "请输入申请入校时间（）：";
         cin >> a->Enter.year>> a->Enter.month>> a->Enter.day;
         a->Condition = 1;
         break;
     case 2:
-        cout << "请输入申请出校时间（xxxx.xx.xx）：";
+        cout << "请输入申请出校时间（）：";
         cin >> a->Out.year>> a->Out.month>> a->Out.day;
         a->Condition = 2;
         break;
     case 3:
-        cout << "请输入申请入校时间（xxxx.xx.xx）：";
+        cout << "请输入申请入校时间（）：";
         cin >> a->Enter.year>> a->Enter.month>> a->Enter.day;
-        cout << "请输入申请出校时间（xxxx.xx.xx）：";
+        cout << "请输入申请出校时间（）：";
         cin >> a->Out.year>> a->Out.month>> a->Out.day;
         a->Condition = 3;
         break;
@@ -143,7 +170,16 @@ void check(StudentT *a) //查询申请
         cout << "审批通过";
         a->Condition=0;
         }
-    else if(a->Condition==5)
+    else if(a->Condition==5){}
         cout << "审批未通过";
         a->Condition=0;
+}
+    if (a->Condition==0){
+        cout << "您尚未提交申请";
+        a->Condition=0;
+        }
+    else{
+        cout << "申请尚在审批中";
+        a->Condition=0;
+        }
 }
